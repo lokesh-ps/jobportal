@@ -5,6 +5,15 @@ import User from "../models/user.model.js";
 export const registerUser = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, password, role } = req.body;
+    console.log(
+      "fullName, email, phoneNumber, password, role",
+      fullName,
+      email,
+      phoneNumber,
+      password,
+      role,
+    );
+
     if (!fullName || !email || !phoneNumber || !password || !role) {
       return res.status(400).json({
         message: "Please provide all required fields",
@@ -29,9 +38,10 @@ export const registerUser = async (req, res) => {
       .status(201)
       .json({ message: "User registered successfully", success: true });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Server Error in Registering User", success: false });
+    res.status(500).json({
+      message: error.message || "Server Error in Registering User",
+      success: false,
+    });
   }
 };
 
@@ -120,9 +130,11 @@ export const updateProfile = async (req, res) => {
       role: user.role,
       profile: user.profile,
     };
-    res
-      .status(200)
-      .json({ message: "Profile updated successfully", user: updatedUser, success: true });
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+      success: true,
+    });
   } catch (error) {
     res
       .status(500)
