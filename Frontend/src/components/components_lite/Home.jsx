@@ -1,5 +1,6 @@
 import Categories from "./Categories";
 import Header from "./Header";
+import LatestJobs from "./LatestJobs";
 import Navbar from "./Navbar";
 
 const Home = () => {
@@ -8,8 +9,8 @@ const Home = () => {
       <Navbar></Navbar>
       <Header />
       <Categories />
-      {/* <LatestJobs/>
-      <Footer/> */}
+      <LatestJobs />
+      {/* <Footer/> */}
     </div>
   );
 };
