@@ -1,3 +1,4 @@
+import Categories from "./Categories";
 import Header from "./Header";
 import Navbar from "./Navbar";
 
@@ -6,8 +7,8 @@ const Home = () => {
     <div>
       <Navbar></Navbar>
       <Header />
-      {/* <Categories/>
-      <LatestJobs/>
+      <Categories />
+      {/* <LatestJobs/>
       <Footer/> */}
     </div>
   );
