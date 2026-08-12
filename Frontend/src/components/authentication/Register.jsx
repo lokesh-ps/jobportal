@@ -7,6 +7,8 @@ import { useState } from "react";
 import axios from "axios";
 import { USER_API_ENDPOINT } from "@/utils/data";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/redux/authSlice";
 
 const Register = () => {
   const [input, setInput] = useState({
@@ -17,8 +19,9 @@ const Register = () => {
     file: "",
     phoneNumber: "",
   });
-  console.log("input", input);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((store) => store.auth);
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
@@ -27,7 +30,6 @@ const Register = () => {
   };
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log(input);
     const formData = new FormData();
     formData.append("fullName", input.fullName);
     formData.append("email", input.email);
@@ -38,6 +40,7 @@ const Register = () => {
       formData.append("file", input.file);
     }
     try {
+      dispatch(setLoading(true));
       const result = await axios.post(
         `${USER_API_ENDPOINT}/register`,
         formData,
@@ -48,16 +51,16 @@ const Register = () => {
           withCredentials: true,
         },
       );
-      console.log(result);
       if (result.data.success) {
         toast.success(result.data.message);
         navigate("/login");
       }
     } catch (err) {
-      console.error(err.message);
       const errorMsg =
         err?.response?.data?.message || "Unexpected error occured";
       toast.error(errorMsg);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
   return (
@@ -147,12 +150,21 @@ const Register = () => {
               className={"cursor-pointer"}
             />
           </div>
-          <button
-            type="submit"
-            className="block w-full py-3 my-3 text-white bg-primary hover:bg-primary/90 rounded-md"
-          >
-            Register
-          </button>
+          {loading ? (
+            <div className="flex items-center justify-center my-10">
+              <div className="spinner-border text-blue-600" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              className="block w-full py-3 my-3 text-white bg-primary hover:bg-primary/90 rounded-md"
+            >
+              Register
+            </button>
+          )}
+
           {/* already account then login */}
           <p className="text-gray-500 text-sm my-2 text-end">
             Already have an account?{" "}

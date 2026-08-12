@@ -7,6 +7,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { USER_API_ENDPOINT } from "@/utils/data";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/redux/authSlice";
 const Login = () => {
   const [input, setInput] = useState({
     email: "",
@@ -14,31 +16,31 @@ const Login = () => {
     role: "",
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((store) => store.auth);
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log(input);
-    const formData = new FormData();
-
     try {
+      dispatch(setLoading(true));
       const result = await axios.post(`${USER_API_ENDPOINT}/login`, input, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
       });
-      console.log(result);
       if (result.data.success) {
         toast.success(result.data.message);
         navigate("/");
       }
     } catch (err) {
-      console.log(err);
       const errorMsg =
         err?.response?.data?.message || "Unexpected error occured";
       toast.error(errorMsg);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
   return (
@@ -102,10 +104,17 @@ const Login = () => {
               </div>
             </RadioGroup>
           </div>
-
-          <button className="block w-full py-3 my-3 text-white bg-blue-600 hover:bg-blue-800/90 rounded-md">
-            Login
-          </button>
+          {loading ? (
+            <div className="flex items-center justify-center my-10">
+              <div className="spinner-border text-blue-600" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <button className="block w-full py-3 my-3 text-white bg-blue-600 hover:bg-blue-800/90 rounded-md">
+              Login
+            </button>
+          )}
           {/* already account then login */}
           <p className="text-gray-500 text-sm my-2 text-end">
             Didn't have an account?{" "}
