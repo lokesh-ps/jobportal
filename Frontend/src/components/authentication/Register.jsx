@@ -141,14 +141,23 @@ const Register = () => {
               </div>
             </RadioGroup>
           </div>
-          <div className="flex items-center gap-2">
-            <Label>Profile Photo</Label>
-            <Input
-              type={"file"}
-              accept="image/*"
-              onChange={changeFileHandler}
-              className={"cursor-pointer"}
-            />
+          <div className="flex items-center gap-3">
+            {input.file && (
+              <img
+                src={URL.createObjectURL(input.file)}
+                alt="Profile preview"
+                className="size-14 rounded-full object-cover border border-gray-300"
+              />
+            )}
+            <div className="flex-1">
+              <Label>Profile Photo</Label>
+              <Input
+                type={"file"}
+                accept="image/*"
+                onChange={changeFileHandler}
+                className={"cursor-pointer"}
+              />
+            </div>
           </div>
           {loading ? (
             <div className="flex items-center justify-center my-10">

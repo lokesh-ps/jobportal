@@ -24,6 +24,11 @@ export const registerUser = async (req, res) => {
       phoneNumber,
       password: hashedPassword,
       role,
+      profile: req.file
+        ? {
+            profilePhoto: `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+          }
+        : {},
     });
     res
       .status(201)

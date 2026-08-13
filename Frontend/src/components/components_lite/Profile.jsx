@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Download, Mail, Pencil, Phone } from "lucide-react";
+import { Download, Loader2, Mail, Pencil, Phone } from "lucide-react";
 
 const defaultSkills = [
   "React",
@@ -67,6 +67,7 @@ const Profile = () => {
   const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
   const [input, setInput] = useState({
     fullName: user?.fullName || "",
@@ -102,9 +103,9 @@ const Profile = () => {
       phoneNumber: user?.phoneNumber || "",
       bio: user?.profile?.bio || "",
       skills: Array.isArray(user?.profile?.skills)
-        ? user.profile.skills.join(", ")
+        ? user?.profile.skills.join(", ")
         : typeof user?.profile?.skills === "string"
-          ? user.profile.skills
+          ? user?.profile.skills
           : "",
     });
     setResumeFile(null);
@@ -127,6 +128,7 @@ const Profile = () => {
       formData.append("file", resumeFile);
     }
     try {
+      setLoading(true);
       const result = await axios.put(
         `${USER_API_ENDPOINT}/profile/update`,
         formData,
@@ -137,9 +139,9 @@ const Profile = () => {
           withCredentials: true,
         },
       );
-      if (result.data.success) {
-        dispatch(setUser(result.data.user));
-        toast.success(result.data.message);
+      if (result?.data?.success) {
+        dispatch(setUser(result?.data?.user));
+        toast.success(result?.data?.message);
         setOpen(false);
         setResumeFile(null);
       }
@@ -147,6 +149,8 @@ const Profile = () => {
       const errorMsg =
         err?.response?.data?.message || "Unexpected error occurred";
       toast.error(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -227,14 +231,14 @@ const Profile = () => {
 
           <div className="mt-6 border-t border-[#dcdcdc] pt-4">
             <h2 className="text-lg font-semibold text-slate-800">Resume</h2>
-            {user.profile?.resume ? (
+            {user?.profile?.resume ? (
               <a
-                href={user.profile.resume}
-                download={user.profile.resumeOriginalName || "resume"}
+                href={user?.profile.resume}
+                download={user?.profile.resumeOriginalName || "resume"}
                 className="mt-2 inline-flex items-center gap-2 text-sm text-[#1888d8] hover:underline"
               >
                 <Download className="h-4 w-4" />
-                {user.profile.resumeOriginalName || "Download"}
+                {user?.profile?.resumeOriginalName || "Download"}
               </a>
             ) : (
               <p className="mt-2 text-sm text-gray-400">No resume uploaded</p>
@@ -360,26 +364,20 @@ const Profile = () => {
                 onChange={changeFileHandler}
                 className="mt-1 h-9 cursor-pointer"
               />
-              {user.profile?.resumeOriginalName && (
+              {user?.profile?.resumeOriginalName && (
                 <p className="mt-1 text-xs text-gray-400">
-                  Current: {user.profile.resumeOriginalName}
+                  Current: {user?.profile.resumeOriginalName}
                 </p>
               )}
             </div>
             <DialogFooter>
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-                className="font-medium"
-              >
-                Cancel
-              </Button>
-              <Button
                 type="submit"
-                className="bg-[#1f1f1f] font-medium hover:bg-black"
+                disabled={loading}
+                className="w-full bg-[#1f1f1f] font-medium hover:bg-black"
               >
-                Save Changes
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
