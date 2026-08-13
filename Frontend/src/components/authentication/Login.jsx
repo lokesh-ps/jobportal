@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { USER_API_ENDPOINT } from "@/utils/data";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "@/redux/authSlice";
+import { setLoading, setUser } from "@/redux/authSlice";
 const Login = () => {
   const [input, setInput] = useState({
     email: "",
@@ -32,6 +32,7 @@ const Login = () => {
         withCredentials: true,
       });
       if (result.data.success) {
+        dispatch(setUser(result.data.user));
         toast.success(result.data.message);
         navigate("/");
       }
