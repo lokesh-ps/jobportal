@@ -110,7 +110,10 @@ export const updateProfile = async (req, res) => {
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     if (skills) user.profile.skills = skillsArray;
-    // user.profile.resume = files; // Store the uploaded files in the user document
+    if (req.file) {
+      user.profile.resume = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      user.profile.resumeOriginalName = req.file.originalname;
+    }
     await user.save();
 
     const updatedUser = {
@@ -129,6 +132,9 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Server Error in Updating Profile", success: false });
+      .json({
+        message: error.message || "Server Error in Updating Profile",
+        success: false,
+      });
   }
 };

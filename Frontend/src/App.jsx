@@ -7,6 +7,7 @@ import TermsOfService from "./components/components_lite/TermsOfService";
 import Jobs from "./components/components_lite/Jobs";
 import Browse from "./components/components_lite/Browse";
 import Profile from "./components/components_lite/Profile";
+import Description from "./components/components_lite/Description";
 
 const appRouter = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const appRouter = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/description/:id",
+    element: <Description />,
   },
   {
     path: "/privacy-policy",
