@@ -6,39 +6,52 @@ import {
   ArrowLeft,
   Banknote,
   Briefcase,
-  CalendarDays,
   CheckCircle2,
   Clock,
   Layers,
   MapPin,
+  Users,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
-const jobData = {
-  companyName: "Google",
-  location: "India",
-  title: "Full Stack Developer",
-  postedDate: "3 days ago",
-  position: "10",
-  salary: 20,
-  jobType: "Full Time",
-  requirements: [
-    "Experience with React, Node.js and MongoDB",
-    "Strong understanding of REST APIs and system design",
-    "Knowledge of CI/CD pipelines and Docker",
-    "Good problem solving and communication skills",
-    "3+ years of relevant experience",
-  ],
-  description: [
-    "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi harum recusandae debitis blanditiis vero neque adipisci eos deserunt molestias quidem, ratione voluptates velit veniam ipsa veritatis obcaecati tempora tempore aperiam.",
-    "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi harum recusandae debitis blanditiis vero neque adipisci eos deserunt molestias quidem, ratione voluptates velit veniam ipsa veritatis obcaecati tempora tempore aperiam.",
-  ],
-};
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import { use, useEffect } from "react";
+import axios from "axios";
+import { JOB_API_ENDPOINT } from "@/utils/data";
+import { setSelectedJob } from "@/redux/jobSlice";
+import { setLoading } from "@/redux/authSlice";
 
 const Description = () => {
   const navigate = useNavigate();
-  const isApplied = false;
-
+  const dispatch = useDispatch();
+  const params = useParams();
+  const jobId = params.id;
+  const { selectedJob } = useSelector((store) => store.job);
+  const { user } = useSelector((store) => store.auth);
+  const isApplied =
+    selectedJob?.applications?.some((appli) => appli.applicant === user?._id) ||
+    false;
+  useEffect(() => {
+    const fetchJobById = async () => {
+      try {
+        dispatch(setLoading(true));
+        const res = await axios.get(`${JOB_API_ENDPOINT}/get/${jobId}`, {
+          withCredentials: true,
+        });
+        if (res.data.success) {
+          dispatch(setSelectedJob(res.data.job));
+        }
+      } catch (error) {
+        console.log(error.message);
+        toast.error(error.message || "Failed to fetch the job");
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
+    if (jobId) {
+      fetchJobById();
+    }
+  }, [jobId, dispatch, user?._id]);
   return (
     <div>
       <Navbar />
@@ -58,37 +71,46 @@ const Description = () => {
                 <Avatar className="size-14 rounded-md">
                   <AvatarImage src="" />
                   <AvatarFallback className="bg-[#6B3AC2] text-white text-lg">
-                    {jobData.companyName.charAt(0)}
+                    {(selectedJob?.company?.name || selectedJob?.title || "J")
+                      .charAt(0)
+                      .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-bold">
-                      {jobData.companyName}
+                      {selectedJob?.title || "Job Title"}
                     </h1>
                     <span className="flex items-center gap-1 text-sm text-gray-500">
-                      <MapPin className="size-4" /> {jobData.location}
+                      <MapPin className="size-4" />{" "}
+                      {selectedJob?.location || "Location"}
                     </span>
                   </div>
                   <h2 className="text-lg font-medium text-gray-700">
-                    {jobData.title}
+                    {selectedJob?.company?.name ||
+                      selectedJob?.company ||
+                      "Company"}
                   </h2>
-                  <p className="text-sm text-gray-500">{jobData.postedDate}</p>
+                  <p className="text-sm text-gray-500">
+                    {selectedJob?.createdAt
+                      ? new Date(selectedJob.createdAt).toLocaleDateString()
+                      : "Recently posted"}
+                  </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2 items-center mt-5">
                 <Badge className="text-blue-600 font-bold" variant="ghost">
-                  {jobData.position} Position
+                  {selectedJob?.position || "N/A"} Position
                 </Badge>
                 <Badge className="text-[#FA4F09] font-bold" variant="ghost">
-                  {jobData.salary} LPA
+                  {selectedJob?.salary || "N/A"} LPA
                 </Badge>
                 <Badge className="text-[#6B3AC2] font-bold" variant="ghost">
-                  {jobData.location}
+                  {selectedJob?.location || "Remote"}
                 </Badge>
                 <Badge className="text-black font-bold" variant="ghost">
-                  {jobData.jobType}
+                  {selectedJob?.jobType || "Full Time"}
                 </Badge>
               </div>
             </div>
@@ -98,16 +120,17 @@ const Description = () => {
                 Job Description
               </h2>
               <div className="mt-3 space-y-3 text-gray-600">
-                {jobData.description.map((para, index) => (
-                  <p key={index}>{para}</p>
-                ))}
+                {selectedJob?.description || "No description available."}
               </div>
             </div>
 
             <div className="p-6 rounded-md shadow-xl bg-white border border-gray-200">
               <h2 className="text-xl font-bold text-gray-800">Requirements</h2>
               <ul className="mt-3 space-y-2">
-                {jobData.requirements.map((req, index) => (
+                {(selectedJob?.requirements?.length
+                  ? selectedJob.requirements
+                  : ["No specific requirements mentioned"]
+                ).map((req, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-gray-600"
@@ -131,7 +154,7 @@ const Description = () => {
                   <div>
                     <p className="text-gray-400">Job Type</p>
                     <p className="font-medium text-gray-800">
-                      {jobData.jobType}
+                      {selectedJob?.jobType || "Full Time"}
                     </p>
                   </div>
                 </div>
@@ -142,7 +165,7 @@ const Description = () => {
                   <div>
                     <p className="text-gray-400">Positions</p>
                     <p className="font-medium text-gray-800">
-                      {jobData.position}
+                      {selectedJob?.position || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -153,7 +176,7 @@ const Description = () => {
                   <div>
                     <p className="text-gray-400">Salary</p>
                     <p className="font-medium text-gray-800">
-                      {jobData.salary} LPA
+                      {selectedJob?.salary || "N/A"} LPA
                     </p>
                   </div>
                 </div>
@@ -164,7 +187,7 @@ const Description = () => {
                   <div>
                     <p className="text-gray-400">Location</p>
                     <p className="font-medium text-gray-800">
-                      {jobData.location}
+                      {selectedJob?.location || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -175,7 +198,33 @@ const Description = () => {
                   <div>
                     <p className="text-gray-400">Posted</p>
                     <p className="font-medium text-gray-800">
-                      {jobData.postedDate}
+                      {selectedJob?.createdAt
+                        ? new Date(selectedJob.createdAt).toLocaleDateString()
+                        : "Recently"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex size-9 items-center justify-center rounded-md bg-[#6B3AC2]/10 text-[#6B3AC2]">
+                    <Briefcase className="size-4" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Experience</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedJob?.experience != null
+                        ? `${selectedJob.experience} Years`
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex size-9 items-center justify-center rounded-md bg-[#6B3AC2]/10 text-[#6B3AC2]">
+                    <Users className="size-4" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400">No. of Applications</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedJob?.applications?.length ?? "N/A"}
                     </p>
                   </div>
                 </div>

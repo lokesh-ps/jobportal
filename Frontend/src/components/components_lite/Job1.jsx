@@ -4,14 +4,24 @@ import { Bookmark } from "lucide-react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { useNavigate } from "react-router-dom";
+import { setSelectedJob } from "@/redux/jobSlice";
+import { useDispatch } from "react-redux";
 
-const Job1 = () => {
+const Job1 = ({ job }) => {
   const navigate = useNavigate();
-  const jobId = "33t";
+  const dispatch = useDispatch();
+  const daysAgo = (mangodbTime) => {
+    const createdAt = new Date(mangodbTime);
+    const currentTime = new Date();
+    const timeDiff = currentTime.getTime() - createdAt.getTime();
+    const diffDays = Math.floor(timeDiff / (1000 * 24 * 60 * 60));
+    const res = diffDays === 0 ? "Today" : `${diffDays} days ago`;
+    return res;
+  };
   return (
     <div className="p-5 rounded-md shadow-xl bg-white border border-gray-200 cursor-pointer hover:shadow-2xl hover:shadow-blue-200 hover:p-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">3 days ago</p>
+        <p className="text-sm text-gray-600">{daysAgo(job?.createdAt)}</p>
         <Button variant="outline" className={"rounded-full"} size="icon">
           <Bookmark />
         </Button>
@@ -25,36 +35,35 @@ const Job1 = () => {
             </Avatar>
           </Button>
           <div>
-            <h1 className="text-lg font-medium">Company Name</h1>
-            <p className="text-sm text-gray-600">India</p>
+            <h1 className="text-lg font-medium">{job?.company?.name}</h1>
+            <p className="text-sm text-gray-600">{job?.location}</p>
           </div>
         </div>
         <div>
-          <h2 className="font-bold text-lg my-2">Job Title</h2>
-          <p className="text-sm text-gray-600">
-            Lorem ipsum dolor sit amet Animi harum recusandae debitis blanditiis
-            vero neque adipisci eos deserunt molestias quidem, ratione
-            voluptates
-          </p>
+          <h2 className="font-bold text-lg my-2">{job?.title}</h2>
+          <p className="text-sm text-gray-600">{job?.description}</p>
         </div>
-        <div className="flex gap-2 items-center mt-4">
+        <div className="flex flex-wrap gap-2 items-center mt-4">
           <Badge className={"text-blue-600 font-bold mr-2"} variant={"ghost"}>
-            10 Position
+            {job?.position}
           </Badge>
           <Badge className={"text-[#FA4F09] font-bold mr-2"} variant={"ghost"}>
-            20 LPA
+            {job?.salary}
           </Badge>
           <Badge className={"text-[#6B3AC2] font-bold mr-2"} variant={"ghost"}>
-            Remote
+            {job?.location}
           </Badge>
           <Badge className={"text-black font-bold"} variant={"ghost"}>
-            Full Time
+            {job?.jobType}
           </Badge>
         </div>
       </div>
-      <div className="flex items-center gap-4 mt-4">
+      <div className="flex flex-wrap items-center gap-4 mt-4">
         <Button
-          onClick={() => navigate(`/description/${jobId}`)}
+          onClick={() => {
+            dispatch(setSelectedJob(job));
+            navigate(`/description/${job?._id}`);
+          }}
           variant="outline"
           className={"font-bold rounded-sm"}
         >
