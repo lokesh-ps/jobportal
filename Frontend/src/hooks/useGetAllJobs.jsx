@@ -6,9 +6,10 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
-const useGetAllJobs = () => {
+const useGetAllJobs = (user) => {
   const dispatch = useDispatch();
   useEffect(() => {
+    if (!user) return;
     const fetchAllJobs = async () => {
       try {
         dispatch(setLoading(true));

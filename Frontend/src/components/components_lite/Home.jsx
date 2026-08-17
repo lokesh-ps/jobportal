@@ -4,9 +4,11 @@ import Footer from "./Footer";
 import Header from "./Header";
 import LatestJobs from "./LatestJobs";
 import Navbar from "./Navbar";
+import { useSelector } from "react-redux";
 
 const Home = () => {
-  useGetAllJobs();
+  const { user } = useSelector((store) => store.auth);
+  useGetAllJobs(user);
   return (
     <div>
       <Navbar></Navbar>
@@ -19,4 +21,3 @@ const Home = () => {
 };
 
 export default Home;
-Home;

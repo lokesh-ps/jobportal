@@ -15,9 +15,9 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { use, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { JOB_API_ENDPOINT } from "@/utils/data";
+import { APPLICATION_API_ENDPOINT, JOB_API_ENDPOINT } from "@/utils/data";
 import { setSelectedJob } from "@/redux/jobSlice";
 import { setLoading } from "@/redux/authSlice";
 
@@ -28,9 +28,11 @@ const Description = () => {
   const jobId = params.id;
   const { selectedJob } = useSelector((store) => store.job);
   const { user } = useSelector((store) => store.auth);
-  const isApplied =
+  const isInitiallyApplied =
     selectedJob?.applications?.some((appli) => appli.applicant === user?._id) ||
     false;
+  const [isApplied, setIsApplied] = useState(isInitiallyApplied);
+
   useEffect(() => {
     const fetchJobById = async () => {
       try {
@@ -40,6 +42,10 @@ const Description = () => {
         });
         if (res.data.success) {
           dispatch(setSelectedJob(res.data.job));
+          const alreadyApplied = res.data.job?.applications?.some(
+            (appli) => appli.applicant === user?._id,
+          );
+          setIsApplied(alreadyApplied || false);
         }
       } catch (error) {
         console.log(error.message);
@@ -52,6 +58,32 @@ const Description = () => {
       fetchJobById();
     }
   }, [jobId, dispatch, user?._id]);
+
+  const applyJobHandler = async () => {
+    try {
+      const res = await axios.get(
+        `${APPLICATION_API_ENDPOINT}/apply/${jobId}`,
+        {
+          withCredentials: true,
+        },
+      );
+      console.log(res);
+      if (res.data.success) {
+        setIsApplied(true);
+        const updatedJob = {
+          ...selectedJob,
+          applications: [
+            ...(selectedJob?.applications || []),
+            { applicant: user?._id },
+          ],
+        };
+        dispatch(setSelectedJob(updatedJob));
+        toast.success(res.data.message || "Job Applied successfully");
+      }
+    } catch (error) {
+      toast.error(error.response.data.message || "Error in applying job");
+    }
+  };
   return (
     <div>
       <Navbar />
@@ -237,7 +269,10 @@ const Description = () => {
                   <CheckCircle2 /> Already Applied
                 </Button>
               ) : (
-                <Button className="w-full mt-6 bg-[#6B3AC2] hover:bg-[#5a2fa6] font-bold h-10">
+                <Button
+                  onClick={() => applyJobHandler()}
+                  className="w-full mt-6 bg-[#6B3AC2] hover:bg-[#5a2fa6] font-bold h-10"
+                >
                   Apply Now
                 </Button>
               )}

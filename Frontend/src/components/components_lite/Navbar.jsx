@@ -1,5 +1,5 @@
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { LogOut, User2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,10 +25,19 @@ const Navbar = () => {
       toast.success("Logged out successfully");
       navigate("/");
     } catch (err) {
-      const errorMsg =
-        err?.response?.data?.message || "Failed to logout";
+      const errorMsg = err?.response?.data?.message || "Failed to logout";
       toast.error(errorMsg);
     }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -62,23 +71,25 @@ const Navbar = () => {
               <PopoverTrigger asChild>
                 <Avatar className="cursor-pointer">
                   <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt="@shadcn"
+                    src={user?.profile?.profilePhoto}
+                    alt={user?.fullName}
                   />
+                  <AvatarFallback>{getInitials(user?.fullName)}</AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
               <PopoverContent className="w-80">
                 <div className="">
                   <Avatar className="cursor-pointer">
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
+                      src={user?.profile?.profilePhoto}
+                      alt={user?.fullName}
                     />
+                    <AvatarFallback>{getInitials(user?.fullName)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-medium">Lokesh</h3>
+                    <h3 className="font-medium">{user?.fullName}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                      {user?.profile?.bio || "-"}
                     </p>
                   </div>
                 </div>
