@@ -51,9 +51,18 @@ const Navbar = () => {
         </div>
         <div className="flex items-center gap-10">
           <ul className="flex font-medium items-center gap-6">
-            <Link to={"/home"}>Home</Link>
-            <Link to={"/browse"}>Browse</Link>
-            <Link to={"/jobs"}>Jobs</Link>
+            {user && user.role === "Recruiter" ? (
+              <>
+                <Link to={"/admin/companies"}>Companies</Link>
+                <Link to={"/admin/jobs"}>Jobs</Link>
+              </>
+            ) : (
+              <>
+                <Link to={"/home"}>Home</Link>
+                <Link to={"/browse"}>Browse</Link>
+                <Link to={"/jobs"}>Jobs</Link>
+              </>
+            )}
           </ul>
           {!user ? (
             <div className="flex items-center gap-2">
@@ -84,7 +93,9 @@ const Navbar = () => {
                       src={user?.profile?.profilePhoto}
                       alt={user?.fullName}
                     />
-                    <AvatarFallback>{getInitials(user?.fullName)}</AvatarFallback>
+                    <AvatarFallback>
+                      {getInitials(user?.fullName)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <h3 className="font-medium">{user?.fullName}</h3>
@@ -93,13 +104,16 @@ const Navbar = () => {
                     </p>
                   </div>
                 </div>
+
                 <div className="flex my-2 flex-col text-gray-600">
-                  <div className="flex w-fit items-center gap-2 cursor-pointer">
-                    <User2></User2>
-                    <Button variant="link">
-                      <Link to={"/profile"}>Profile</Link>
-                    </Button>
-                  </div>
+                  {user && user.role === "Student" && (
+                    <div className="flex w-fit items-center gap-2 cursor-pointer">
+                      <User2></User2>
+                      <Button variant="link">
+                        <Link to={"/profile"}>Profile</Link>
+                      </Button>
+                    </div>
+                  )}
                   <div className="flex w-fit items-center gap-2 cursor-pointer">
                     <LogOut></LogOut>
                     <Button variant="link" onClick={logoutHandler}>
