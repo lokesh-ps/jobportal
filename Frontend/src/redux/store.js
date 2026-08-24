@@ -11,6 +11,7 @@ import {
   PERSIST,
   PURGE,
 } from "redux-persist";
+import { companySlice } from "./companyslice";
 
 const storage = {
   getItem: (key) => Promise.resolve(localStorage.getItem(key)),
@@ -28,6 +29,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   job: jobReducer,
+  company: companySlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

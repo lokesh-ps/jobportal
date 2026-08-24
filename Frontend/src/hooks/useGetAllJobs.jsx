@@ -2,7 +2,7 @@ import { setLoading } from "@/redux/authSlice";
 import { setAllJobs } from "@/redux/jobSlice";
 import { JOB_API_ENDPOINT } from "@/utils/data";
 import axios from "axios";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
