@@ -1,4 +1,5 @@
 import Company from "../models/company.model.js";
+import { uploadLogoToCloudinary } from "../utils/cloudinary.js";
 
 export const registerCompany = async (req, res) => {
   try {
@@ -83,7 +84,7 @@ export const getCompanyById = async (req, res) => {
 export const updateCompanyById = async (req, res) => {
   try {
     const { id: companyId } = req.params;
-    const { name, description, website, location, logo } = req.body;
+    const { name, description, website, location } = req.body;
     if (!companyId) {
       return res
         .status(400)
@@ -95,12 +96,17 @@ export const updateCompanyById = async (req, res) => {
         .status(404)
         .json({ message: "Company not found", success: false });
     }
+    let logo = company.logo;
+    if (req.file) {
+      const result = await uploadLogoToCloudinary(req.file.buffer);
+      logo = result.secure_url;
+    }
     const updatedData = {
       name: name || company.name,
       description: description || company.description,
       website: website || company.website,
       location: location || company.location,
-      logo: logo || company.logo,
+      logo,
     };
     const updatedCompany = await Company.findByIdAndUpdate(
       companyId,
@@ -113,8 +119,10 @@ export const updateCompanyById = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server Error in Updating Company", success: false });
+    console.error("Update Company Error:", error);
+    return res.status(500).json({
+      message: error.message || "Server Error in Updating Company",
+      success: false,
+    });
   }
 };

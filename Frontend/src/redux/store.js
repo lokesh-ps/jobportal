@@ -11,7 +11,7 @@ import {
   PERSIST,
   PURGE,
 } from "redux-persist";
-import { companySlice } from "./companyslice";
+import companyReducer from "./companyslice";
 
 const storage = {
   getItem: (key) => Promise.resolve(localStorage.getItem(key)),
@@ -23,13 +23,13 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["auth", "job", "application"],
+  whitelist: ["auth", "job", "application", "company"],
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
   job: jobReducer,
-  company: companySlice,
+  company: companyReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

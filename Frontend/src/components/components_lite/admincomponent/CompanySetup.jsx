@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import axios from "axios";
 import { COMPANY_API_ENDPOINT } from "@/utils/data";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import useGetCompanyById from "@/hooks/useGetCompanyById";
 
 const CompanySetup = () => {
   const [input, setInput] = useState({
@@ -19,8 +21,9 @@ const CompanySetup = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const { singleCompany } = useSelector((state) => state.company);
   const params = useParams();
+  useGetCompanyById(params.id);
   console.log("params", params);
 
   const changeEventHandler = (e) => {
@@ -43,9 +46,6 @@ const CompanySetup = () => {
         `${COMPANY_API_ENDPOINT}/update/${params.id}`,
         formData,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
           withCredentials: true,
         },
       );
@@ -59,6 +59,16 @@ const CompanySetup = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setInput({
+      name: singleCompany?.name || "",
+      description: singleCompany?.description || "",
+      website: singleCompany?.website || "",
+      location: singleCompany?.location || "",
+      file: null,
+    });
+  }, [singleCompany]);
   return (
     <div>
       <Navbar />
@@ -126,6 +136,21 @@ const CompanySetup = () => {
                   onChange={fileChangeHandler}
                   className="w-fit"
                 />
+                {singleCompany?.logo && (
+                  <a
+                    href={singleCompany.logo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 flex w-fit items-center gap-2 text-sm text-blue-600 underline"
+                  >
+                    <img
+                      src={singleCompany.logo}
+                      alt="Current company logo"
+                      className="h-10 w-10 rounded object-cover"
+                    />
+                    Click to view logo
+                  </a>
+                )}
               </div>
             </div>
           </div>
