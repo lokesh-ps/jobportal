@@ -141,16 +141,13 @@ export const getJobById = async (req, res) => {
 export const getAdminJobs = async (req, res) => {
   try {
     const adminId = req.user.id;
-    const jobs = await Job.find({ created_by: adminId });
-    if (!jobs || jobs.length === 0) {
-      return res.status(404).json({
-        message: "No jobs found for this admin",
-        success: false,
-      });
-    }
+    const jobs = await Job.find({ created_by: adminId }).populate("company");
+
     res.status(200).json({
-      message: "Admin Jobs retrieved successfully",
-      jobs,
+      message: jobs.length
+        ? "Admin Jobs retrieved successfully"
+        : "No jobs found for this admin",
+      jobs: jobs || [],
       success: true,
     });
   } catch (error) {

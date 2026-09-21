@@ -21,9 +21,23 @@ const storage = {
 
 const persistConfig = {
   key: "root",
-  version: 1,
+  version: 2,
   storage,
-  whitelist: ["auth", "job", "application", "company"],
+  whitelist: ["auth", "job", "company"],
+  migrate: (state) => {
+    if (!state) return state;
+
+    const jobState = state.job || {};
+
+    return {
+      ...state,
+      job: {
+        allJobs: jobState.allJobs ?? [],
+        selectedJob: jobState.selectedJob ?? null,
+        allAdminJobs: jobState.allAdminJobs ?? [],
+      },
+    };
+  },
 };
 
 const rootReducer = combineReducers({
