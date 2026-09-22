@@ -14,7 +14,6 @@ export const postJob = async (req, res) => {
       jobType,
       companyId,
       position,
-      created_by,
     } = req.body;
     if (
       !title ||
@@ -25,8 +24,7 @@ export const postJob = async (req, res) => {
       !experience ||
       !jobType ||
       !companyId ||
-      !position ||
-      !created_by
+      !position
     ) {
       return res.status(400).json({
         message: "Please provide all required fields",

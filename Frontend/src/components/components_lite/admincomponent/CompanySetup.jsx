@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -154,9 +154,17 @@ const CompanySetup = () => {
               </div>
             </div>
           </div>
-          <Button type="submit" className={"w-full mt-8"}>
-            Update
-          </Button>
+          {loading ? (
+            <Button className="w-full my-4">
+              {" "}
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading...
+            </Button>
+          ) : (
+            <Button type="submit" className={"w-full mt-8"}>
+              Update
+            </Button>
+          )}
         </form>
       </div>
     </div>

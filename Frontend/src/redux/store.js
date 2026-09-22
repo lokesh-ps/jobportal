@@ -4,6 +4,7 @@ import jobReducer from "./jobSlice";
 import {
   persistReducer,
   persistStore,
+  createMigrate,
   FLUSH,
   REGISTER,
   REHYDRATE,
@@ -12,6 +13,20 @@ import {
   PURGE,
 } from "redux-persist";
 import companyReducer from "./companyslice";
+
+const migrations = {
+  2: (state) => {
+    const jobState = state.job || {};
+    return {
+      ...state,
+      job: {
+        allJobs: jobState.allJobs ?? [],
+        selectedJob: jobState.selectedJob ?? null,
+        allAdminJobs: jobState.allAdminJobs ?? [],
+      },
+    };
+  },
+};
 
 const storage = {
   getItem: (key) => Promise.resolve(localStorage.getItem(key)),
@@ -24,20 +39,7 @@ const persistConfig = {
   version: 2,
   storage,
   whitelist: ["auth", "job", "company"],
-  migrate: (state) => {
-    if (!state) return state;
-
-    const jobState = state.job || {};
-
-    return {
-      ...state,
-      job: {
-        allJobs: jobState.allJobs ?? [],
-        selectedJob: jobState.selectedJob ?? null,
-        allAdminJobs: jobState.allAdminJobs ?? [],
-      },
-    };
-  },
+  migrate: createMigrate(migrations),
 };
 
 const rootReducer = combineReducers({
