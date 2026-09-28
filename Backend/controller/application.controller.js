@@ -101,9 +101,12 @@ export const getApplicantsForJob = async (req, res) => {
         success: false,
       });
     }
-    const applicants = job.applications.map(
-      (application) => application.applicant,
-    );
+    const applicants = (job.applications || []).map((application) => ({
+      _id: application._id,
+      status: application.status,
+      createdAt: application.createdAt,
+      applicant: application.applicant,
+    }));
     res.status(200).json({
       message: "Applicants retrieved successfully",
       success: true,

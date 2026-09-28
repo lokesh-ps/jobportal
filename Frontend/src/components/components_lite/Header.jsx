@@ -2,7 +2,13 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Search } from "lucide-react";
 import { PiBuildingOfficeBold } from "react-icons/pi";
+import { useDispatch } from "react-redux";
+import { setsearchQuery } from "@/redux/jobSlice";
+import { useNavigate } from "react-router-dom";
 const Header = () => {
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   return (
     <div>
       <div className="text-center">
@@ -23,10 +29,20 @@ const Header = () => {
           <div className="flex w-[40%] shadow-lg border-gray-300 pl-3 rounded-full items-center gap-4 mx-auto">
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Find Your Dream Job"
               className="outline-none border-none w-full"
             />
-            <Button className={"rounded-r-full"}>
+            <Button
+              onClick={() => {
+                // Handle search action here
+                console.log("Searching for:", searchQuery);
+                dispatch(setsearchQuery(searchQuery));
+                navigate("/browse");
+              }}
+              className={"rounded-r-full"}
+            >
               <Search className="h-5 w-5" />
             </Button>
           </div>

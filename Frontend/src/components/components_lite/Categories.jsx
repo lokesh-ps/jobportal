@@ -7,6 +7,9 @@ import {
   CarouselPrevious,
 } from "../ui/carousel";
 import { Button } from "../ui/button";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setsearchQuery } from "@/redux/jobSlice";
 const Category = [
   "Frontend Developer",
   "Backend Developer",
@@ -23,6 +26,8 @@ const Category = [
   "Video Editor",
 ];
 const Categories = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   return (
     <div>
       <div>
@@ -41,7 +46,15 @@ const Categories = () => {
                 key={category}
                 className={"mb:basis-1/2 lg-basis-1/3"}
               >
-                <Button>{category}</Button>
+                <Button
+                  onClick={(category) => {
+                    dispatch(setsearchQuery(category));
+                    navigate("/browse");
+                  }}
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {category}
+                </Button>
               </CarouselItem>
             );
           })}

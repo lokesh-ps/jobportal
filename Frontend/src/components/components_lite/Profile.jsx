@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { Download, Loader2, Mail, Pencil, Phone } from "lucide-react";
+import useGetAllAppliedJobs from "@/hooks/useGetAllAppliedJobs";
 
 const defaultSkills = [
   "React",
@@ -42,30 +43,11 @@ const defaultSkills = [
   "Kubernetes",
 ];
 
-const defaultAppliedJobs = [
-  {
-    date: "23-12-2024",
-    title: "Software Engineer",
-    company: "Microsoft",
-    status: "Selected",
-  },
-  {
-    date: "23-12-2024",
-    title: "Software Engineer",
-    company: "Microsoft",
-    status: "Selected",
-  },
-  {
-    date: "23-12-2024",
-    title: "Software Engineer",
-    company: "Microsoft",
-    status: "Selected",
-  },
-];
-
 const Profile = () => {
   const { user } = useSelector((store) => store.auth);
+  const { allAppliedJobs } = useSelector((store) => store.job);
   const dispatch = useDispatch();
+  const { isLoading } = useGetAllAppliedJobs(user);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
@@ -159,13 +141,11 @@ const Profile = () => {
     : typeof user?.profile?.skills === "string"
       ? user?.profile.skills
           .split(",")
-          .map((skill) => skill.trim())
+          ?.map((skill) => skill.trim())
           .filter(Boolean)
       : defaultSkills;
 
-  const appliedJobs = user?.appliedJobs?.length
-    ? user?.appliedJobs
-    : defaultAppliedJobs;
+  const appliedJobs = allAppliedJobs;
 
   return (
     <div>
@@ -218,7 +198,7 @@ const Profile = () => {
           <div className="mt-6">
             <h2 className="text-lg font-semibold text-slate-800">Skills</h2>
             <div className="mt-3 flex flex-wrap gap-2">
-              {skills.map((skill) => (
+              {skills?.map((skill) => (
                 <span
                   key={skill}
                   className="rounded-md border border-[#2e2e2e] bg-[#1f1f1f] px-2.5 py-1 text-xs font-medium text-white"
@@ -268,27 +248,56 @@ const Profile = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {appliedJobs.map((job, index) => (
-                  <TableRow
-                    key={`${job.date}-${job.company}-${index}`}
-                    className="last:border-0"
-                  >
-                    <TableCell className="px-4 py-3 text-sm text-slate-700">
-                      {job.date}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-slate-700">
-                      {job.title}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-slate-700">
-                      {job.company}
-                    </TableCell>
-                    <TableCell className="px-4 py-3">
-                      <span className="inline-flex rounded-md bg-[#1f1f1f] px-3 py-1 text-xs font-medium text-white">
-                        {job.status}
-                      </span>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="px-4 py-6 text-center text-sm text-slate-500"
+                    >
+                      <Loader2 className="mr-2 inline-block h-4 w-4 animate-spin" />
+                      Loading applied jobs...
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : appliedJobs?.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="px-4 py-6 text-center text-sm text-slate-500"
+                    >
+                      You have not applied to any jobs yet.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  appliedJobs?.map((application) => (
+                    <TableRow key={application._id} className="last:border-0">
+                      <TableCell className="px-4 py-3 text-sm text-slate-700">
+                        {application.createdAt
+                          ? new Date(application.createdAt).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-sm text-slate-700">
+                        {application.job?.title || "N/A"}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-sm text-slate-700">
+                        {application.job?.company?.name || "N/A"}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        <span
+                          className={`inline-flex rounded-md ${application.status === "Accepted" ? "bg-green-500" : application.status === "Rejected" ? "bg-red-500" : "bg-yellow-500"} px-3 py-1 text-xs font-medium text-white`}
+                        >
+                          {application.status || "Pending"}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

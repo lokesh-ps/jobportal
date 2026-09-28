@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit2, MoreHorizontal } from "lucide-react";
+import { Edit2, Eye, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -89,6 +89,15 @@ const AdminJobsTable = () => {
                       >
                         <Edit2 className="w-4" />
                         <span>Edit</span>
+                      </div>
+                      <div
+                        onClick={() =>
+                          navigate(`/admin/jobs/${job._id}/applicants`)
+                        }
+                        className="flex w-fit cursor-pointer items-center gap-2 mt-2"
+                      >
+                        <Eye className="w-4" />
+                        <span>Applicants</span>
                       </div>
                     </PopoverContent>
                   </Popover>
